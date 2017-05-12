@@ -1,22 +1,14 @@
 
 import numpy as np
-from scipy.spatial.distance import cdist
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
-from scipy.interpolate import interp1d
 
-def se_kernel(x, y, sigma=1., length=1.):
-    d = cdist(x.reshape(-1,1), y.reshape(-1,1), metric='seuclidean')
-    f = -1. / (2. * length**2)
-    return sigma**2 * np.exp(d*f).reshape(x.shape[0], y.shape[0])
+import kernels
+import utils
 
-def sample(x, sigma, length):
-    cov = se_kernel(x, x, sigma=sigma, length=length)
+def sample_prior(x, kernel_sigma, kernel_length):
+    cov = kernels.se_kernel(x, x, sigma=kernel_sigma, length=kernel_length)
     return np.random.multivariate_normal(np.zeros(x.shape[0]), cov)
-
-def interp(x, y, xnew):
-    f = interp1d(x, y, kind='cubic')
-    return f(xnew)
 
 if __name__ == '__main__':
 
@@ -30,15 +22,15 @@ if __name__ == '__main__':
     slength = Slider(axlength, 'Length', 0.1, 3.0, valinit=1)
     
     np.random.seed(123)
-    x = np.arange(-5, 5, 0.2, dtype=float)
-    xdraw = np.arange(-5, x.max(), 0.01, dtype=float)
-    y = sample(x, 1., 1.)
-    l, = ax.plot(xdraw, interp(x, y, xdraw))
+    x = np.linspace(-5., 5, 20, endpoint=True)
+    xdraw = np.linspace(-5, 5, 200, endpoint=True)
+    y = sample_prior(x, 1., 1.)
+    l, = ax.plot(xdraw, utils.interp(x, y, xdraw))
 
     def update(val):
         np.random.seed(123)
-        y = sample(x, sigma=ssigma.val, length=slength.val)
-        l.set_ydata(interp(x, y, xdraw))
+        y = sample_prior(x, ssigma.val, slength.val)
+        l.set_ydata(utils.interp(x, y, xdraw))
         fig.canvas.draw_idle()
 
     ssigma.on_changed(update)
