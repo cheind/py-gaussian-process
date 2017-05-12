@@ -23,7 +23,7 @@ if __name__ == '__main__':
     
     np.random.seed(123)
     x = np.linspace(-5., 5, 20, endpoint=True)
-    xdraw = np.linspace(-5, 5, 200, endpoint=True)
+    xdraw = np.linspace(-5, 5, 100, endpoint=True)
     y = sample_prior(x, 1., 1.)
     l, = ax.plot(xdraw, utils.interp(x, y, xdraw))
 
