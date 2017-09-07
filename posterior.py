@@ -35,7 +35,15 @@ if __name__ == '__main__':
     pmu = Ks.T.dot(alpha)
     beta = solvetri(L, Ks, lower=True)
     pcov = Kss - beta.T.dot(beta)
-    sigma = np.sqrt(np.diag(pcov))
+    sigma = np.sqrt(np.diag(pcov)) 
+    
+    # Note, there is a faster method for obtaining the std of the predictive distribution at the test
+    # points that avoids computing the entire covariance matrix:
+    #L_inv = solvetri(L.T, np.eye(L.shape[0]))
+    #K_inv = L_inv.dot(L_inv.T)
+    #sigma = np.copy(np.diag(Kss))
+    #sigma -= np.einsum("ij,ij->i", np.dot(Ks.T, K_inv), Ks.T)
+    #sigma = np.sqrt(sigma)
 
     # Draw samples (functions) from the posterior
     ytest = np.random.multivariate_normal(pmu, pcov, size=10)
