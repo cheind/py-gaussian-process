@@ -35,17 +35,21 @@ if __name__ == '__main__':
     pmu = Ks.T.dot(alpha)
     beta = solvetri(L, Ks, lower=True)
     pcov = Kss - beta.T.dot(beta)
+    sigma = np.sqrt(np.diag(pcov))
 
     # Draw samples (functions) from the posterior
     ytest = np.random.multivariate_normal(pmu, pcov, size=10)
-
-    xdraw = np.linspace(-5, 5, 50, endpoint=True)
 
     fig, ax = plt.subplots()
     ax.set_title('Gaussian process posterior\nklength={:.1f}, ksigma={:.1f}, noise={:.1f}'.format(klength, ksigma, noise))    
     ax.plot(xtest.reshape(-1, 1), ytest.T, lw=0.5)
     ax.plot(xtrain, ytrain, 'k+', ms=20, lw=5, label='Train points')
-    ax.plot(xdraw, f(xdraw), 'k-', label='True function')
+    ax.plot(xtest, f(xtest), 'k-', label='True function')
     ax.plot(xtest, pmu, 'r--', label='Posterior mean')
+    ax.fill(
+        np.concatenate([xtest, xtest[::-1]]),
+        np.concatenate([pmu - 1.9600 * sigma, (pmu + 1.9600 * sigma)[::-1]]),
+        alpha=.2, fc='b', ec='None', label='95% confidence interval')
+
     plt.legend(loc=4)    
     plt.show()
