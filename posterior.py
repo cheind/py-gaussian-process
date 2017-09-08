@@ -11,7 +11,7 @@ def validate(xtrain, ytrain, xtest, ypred, ypredsigma, args):
     from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
     kernel = C(args.signal_std**2, (1e-3, 1e3)) * RBF(args.length_scale, (1e-2, 1e2))    
-    gp = GaussianProcessRegressor(kernel=kernel, optimizer=None, alpha=args.noise_std)
+    gp = GaussianProcessRegressor(kernel=kernel, optimizer=None, alpha=args.noise_std**2)
     gp.fit(xtrain.reshape(-1, 1), ytrain)
     ypredhat, ypredsigmahat = gp.predict(xtest.reshape(-1,1), return_std=True)
 
@@ -76,8 +76,8 @@ if __name__ == '__main__':
         alpha=.2, fc='b', ec='None', label='95% confidence interval')
     
     # Draw samples (functions) from the posterior
-    # ytest = np.random.multivariate_normal(pmu, pcov, size=10)
-    # ax.plot(xtest.reshape(-1, 1), ytest.T, lw=0.5)    
+    ytest = np.random.multivariate_normal(pmu, pcov, size=10)
+    ax.plot(xtest.reshape(-1, 1), ytest.T, lw=0.5)    
     ax.set_ylim(-10, 20)
     plt.legend(loc='upper left')    
     plt.savefig('GP_posterior_lscale{:.1f}_signalstd{:.1f}_noisestd{:.1f}.png'.format(args.length_scale, args.signal_std, args.noise_std), dpi=300)
